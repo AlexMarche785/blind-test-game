@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blind Test Game (v4 - Listener Test)</title> <style>
+    <title>Blind Test Game (v5 - Dummy LoadSong)</title> <style>
         /* CSS Styles remain the same */
         body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f0f0; text-align: center; padding: 20px; box-sizing: border-box; }
         #game-container { background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-width: 500px; width: 100%; }
@@ -24,35 +24,42 @@
 </head>
 <body>
     <div id="game-container">
-        <h1>Blind Test Game (v4 - Listener Test)</h1> <p id="instructions">Press "Start Game" to begin!</p>
+        <h1>Blind Test Game (v5 - Dummy LoadSong)</h1>
+        <p id="instructions">Press "Start Game" to begin!</p>
 
         <audio id="audio-player" preload="auto"></audio>
 
         <div id="controls">
             <button id="start-btn">Start Game</button>
-            <button id="play-btn" disabled>Play Snippet</button>
-            <button id="next-btn">Next Song</button>
-        </div>
+            <button id="play-btn" disabled>Play Snippet</button> <button id="next-btn">Next Song</button> </div>
 
-        <div id="guess-section">
-            <input type="text" id="guess-input" placeholder="Enter song title guess">
+        <div id="guess-section"> <input type="text" id="guess-input" placeholder="Enter song title guess">
             <button id="submit-btn">Submit Guess</button>
         </div>
 
-        <div id="feedback"></div>
-        <div id="answer"></div>
-        <div id="score">Score: 0 / 0</div>
-    </div>
+        <div id="feedback"></div> <div id="answer"></div> <div id="score">Score: 0 / 0</div> </div>
 
     <script>
-        // --- Minimal setup for testing listener ---
+        // --- Configuration (Keep songs list for size calculation) ---
+        const snippetDuration = 10;
+        const songs = [ // Using the 3 non-Pixabay songs from v3 for count consistency
+            { title: "Childhood", artist: "Scott Buckley (CC BY)", url: "..." },
+            { title: "Monkeys Spinning Monkeys", artist: "Kevin MacLeod (CC BY)", url: "..." },
+            { title: "Jaunty Gumption", artist: "Unknown (freepd.com - CC0)", url: "..." },
+            // Add more dummy entries if needed for song count display
+        ];
+        const totalSongs = songs.length; // Get total number of songs
 
-        // --- DOM Elements ---
+        // --- Game State Variables ---
+        let currentSongIndex = -1; // Keep track of which song (even if dummy)
+        let score = 0;
+        let playedIndices = new Set(); // Use Set to track unique songs played
+        let currentAudioTimeout = null; // Manage snippet timeout
+        let audioLoadError = false; // Track if dummy load fails (it won't here)
+
+        // --- DOM Elements References ---
         console.log("Getting DOM elements...");
         const startBtn = document.getElementById('start-btn');
-        console.log('startBtn element:', startBtn); // Check if button element is found
-
-        // Other elements (not used in simplified startGame, but keep refs)
         const playBtn = document.getElementById('play-btn');
         const nextBtn = document.getElementById('next-btn');
         const submitBtn = document.getElementById('submit-btn');
@@ -62,64 +69,76 @@
         const scoreDiv = document.getElementById('score');
         const instructionsP = document.getElementById('instructions');
         const guessSectionDiv = document.getElementById('guess-section');
-        const audioPlayer = document.getElementById('audio-player');
-        console.log("DOM elements references obtained (or null if ID mismatch).");
+        const audioPlayer = document.getElementById('audio-player'); // Ref needed even if not used directly yet
+        console.log('startBtn element:', startBtn); // Confirm button found
+        console.log("DOM elements references obtained.");
 
+        // --- Main Game Functions ---
 
-        // --- Simplified startGame Function for Testing ---
-        function startGame() {
-            console.log("startGame function CALLED!"); // Log entry into the function
+        // Simplified loadSong for testing startGame interaction
+        function loadSong() {
+            console.log("loadSong CALLED (Simplified Version)");
+            playedIndices.add(playedIndices.size); // Simulate playing unique songs
+            currentSongIndex = playedIndices.size - 1; // Simulate index
+            console.log(`Simulating song load for index ${currentSongIndex}. Total played: ${playedIndices.size}`);
 
-            // Test 1: Directly manipulate an element WITHOUT relying on other functions yet
-            const mainTitle = document.querySelector('#game-container h1');
-            if (mainTitle) {
-                // Change the text content to give visual feedback
-                mainTitle.textContent = 'startGame WAS CALLED!';
-                console.log('H1 Title Changed.');
-            } else {
-                console.error('Could not find H1 element! Check selector.');
-            }
+            // Simulate successful load: Enable Play button and update text
+            console.log("Simulating successful load: Enabling Play button...");
+            playBtn.disabled = false;
+            instructionsP.textContent = `Song ${playedIndices.size} of ${totalSongs}. (Simulated Load) Press Play Snippet.`;
+            guessSectionDiv.style.display = 'block'; // Show guess section
+            feedbackDiv.style.display = 'none';   // Hide feedback/answer
+            answerDiv.style.display = 'none';
+            nextBtn.style.display = 'none';       // Hide next button
 
-            // Test 2: Try manipulating the button that was clicked
-            if (startBtn) {
-                 startBtn.textContent = 'Clicked!'; // Change button text
-                 // startBtn.style.display = 'none'; // Optionally hide it
-                 console.log('Start button text changed.');
-            } else {
-                 console.error('startBtn variable is null inside startGame!');
-            }
-
-            // --- Temporarily comment out the actual game logic ---
-            /*
-             score = 0;
-             playedIndices.clear();
-             scoreDiv.textContent = `Score: 0 / 0`;
-             feedbackDiv.style.display = 'none';
-             answerDiv.style.display = 'none';
-             startBtn.style.display = 'none'; // Original logic hides button
-             playBtn.disabled = true;
-             nextBtn.textContent = 'Next Song';
-             audioLoadError = false; // Assuming these variables were defined earlier if needed
-
-             console.log("Attempting to call loadSong() from startGame...");
-             if (!loadSong()) { // Assuming loadSong exists
-                 console.error("loadSong() returned false in startGame.");
-                 // Assuming endGame exists
-                 endGame("No songs available to start the game.");
-             } else {
-                 console.log("loadSong() called successfully from startGame.");
-             }
-            */
+            console.log("loadSong finished (Simplified Version), returning true.");
+            return true; // Simulate success
         }
 
-        // --- Dummy functions needed if uncommenting above ---
-        /*
-        let score = 0; // Define variables if uncommenting game logic
-        let playedIndices = new Set();
-        let audioLoadError = false;
-        function loadSong() { console.log("loadSong() dummy called"); return true; }
-        function endGame(msg) { console.log("endGame() dummy called:", msg); }
-        */
+        // Restored startGame function
+        function startGame() {
+             console.log("startGame function CALLED!");
+             score = 0;
+             playedIndices.clear(); // Reset played songs
+             audioLoadError = false; // Reset error flag
+
+             // Update UI immediately
+             scoreDiv.textContent = `Score: 0 / 0`;
+             feedbackDiv.style.display = 'none'; // Hide feedback
+             answerDiv.style.display = 'none';   // Hide answer
+             startBtn.style.display = 'none';    // Hide Start button
+             playBtn.disabled = true;            // Ensure play is disabled initially
+             nextBtn.style.display = 'none';     // Ensure next is hidden initially
+             nextBtn.textContent = 'Next Song';  // Reset next button text
+             console.log("Initial UI reset in startGame complete.");
+
+             console.log("Calling loadSong() from startGame...");
+             if (!loadSong()) { // Call the simplified loadSong
+                 console.error("loadSong() returned false in startGame (Simplified version shouldn't fail).");
+                 // Assuming endGame exists or define a dummy
+                 endGame("No songs available to start the game.");
+             } else {
+                 console.log("loadSong() called successfully from startGame. Check UI updates from loadSong.");
+                 // Check if guess section appears now
+                 console.log("Is guess section visible?", guessSectionDiv.style.display);
+             }
+        }
+
+        // --- Dummy functions needed for completeness ---
+        function playSnippet() { console.warn("playSnippet called - Real audio playback disabled in this version."); }
+        function checkGuess() { console.warn("checkGuess called - Guessing disabled in this version."); }
+        function nextRound() { console.warn("nextRound called - Not fully implemented in this version."); loadSong(); /* Call dummy loadSong again */}
+        function endGame(message) {
+             console.log(`endGame called: ${message}`);
+             instructionsP.textContent = `${message} Final Score: ${score} / ${playedIndices.size}`;
+             playBtn.disabled = true;
+             submitBtn.disabled = true;
+             guessInput.disabled = true;
+             guessSectionDiv.style.display = 'none';
+             nextBtn.style.display = 'none';
+             startBtn.style.display = 'inline-block';
+             startBtn.textContent = 'Play Again?';
+        }
 
 
         // --- Event Listener Attachment ---
@@ -132,8 +151,7 @@
             console.error("Cannot add listener: startBtn element not found! Check HTML ID ('start-btn').");
         }
 
-        // --- Other Listeners (keep them, though targets might not be active) ---
-        /*
+        // Add other listeners (they will call dummy functions)
         playBtn.addEventListener('click', playSnippet);
         submitBtn.addEventListener('click', checkGuess);
         nextBtn.addEventListener('click', nextRound);
@@ -143,7 +161,7 @@
                  checkGuess();
              }
          });
-        */
+
          console.log("Initial script setup complete.");
 
     </script>
