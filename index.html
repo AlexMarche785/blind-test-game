@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blind Test Game (20 Songs)</title>
+    <title>Blind Test Game (v2 - Robust Audio)</title>
     <style>
         body {
             font-family: sans-serif;
@@ -73,6 +73,7 @@
         #feedback {
             margin-top: 15px;
             font-weight: bold;
+            min-height: 1.2em; /* Reserve space to prevent layout jumps */
         }
 
         #feedback.correct {
@@ -87,6 +88,7 @@
             margin-top: 10px;
             color: #17a2b8; /* Info blue */
             font-style: italic;
+             min-height: 1.2em; /* Reserve space */
         }
 
         #score {
@@ -106,15 +108,12 @@
 </head>
 <body>
     <div id="game-container">
-        <h1>Blind Test Game (20 Songs)</h1>
+        <h1>Blind Test Game (v2)</h1>
         <p id="instructions">Press "Start Game" to hear the first song snippet!</p>
 
-        <audio id="audio-player" controls></audio>
-
-        <div id="controls">
+        <audio id="audio-player" preload="auto"></audio> <div id="controls">
             <button id="start-btn">Start Game</button>
-            <button id="play-btn" disabled>Play Snippet</button>
-            <button id="next-btn">Next Song</button>
+            <button id="play-btn" disabled>Play Snippet</button> <button id="next-btn">Next Song</button>
         </div>
 
         <div id="guess-section">
@@ -130,8 +129,8 @@
     <script>
         // --- Configuration ---
         const snippetDuration = 10; // Play snippet for 10 seconds
-        // 20 Copyright-Free songs from Pixabay
         const songs = [
+             // Using the same 20 copyright-free songs from previous version
             { title: "Lofi Study", artist: "FASSounds", url: "https://cdn.pixabay.com/audio/2022/05/27/audio_1819c1671f.mp3" },
             { title: "The Beat of Nature", artist: "Olexy", url: "https://cdn.pixabay.com/audio/2022/01/18/audio_ea80767449.mp3" },
             { title: "Smoke", artist: "SoulProdMusic", url: "https://cdn.pixabay.com/audio/2023/08/01/audio_a3007a175f.mp3" },
@@ -152,16 +151,14 @@
             { title: "The Introvert", artist: "Michael Kobrin", url: "https://cdn.pixabay.com/audio/2021/11/17/audio_7945c36c37.mp3" },
             { title: "8 Bit Retro", artist: "ComaStudio", url: "https://cdn.pixabay.com/audio/2022/01/27/audio_a31f865623.mp3" },
             { title: "Empty Mind", artist: "Lofi_hour", url: "https://cdn.pixabay.com/audio/2023/11/05/audio_40614c1b40.mp3" }
-            // Note: Always double-check Pixabay's license terms if using for commercial purposes.
-            // For a personal GitHub Pages project like this, their standard license is typically sufficient.
         ];
 
         // --- Game State Variables ---
         let currentSongIndex = -1;
         let score = 0;
-        let songsPlayed = 0;
-        let playedIndices = new Set(); // Keep track of songs played in this round
-        let currentAudio = null; // To keep track of the currently playing audio snippet timeout
+        let playedIndices = new Set();
+        let currentAudioTimeout = null;
+        let audioLoadError = false; // Flag for loading errors
 
         // --- DOM Elements ---
         const startBtn = document.getElementById('start-btn');
@@ -175,6 +172,42 @@
         const instructionsP = document.getElementById('instructions');
         const guessSectionDiv = document.getElementById('guess-section');
         const audioPlayer = document.getElementById('audio-player');
+
+        // --- Event Handlers (defined once) ---
+        const onCanPlayThrough = () => {
+            console.log(`Audio ready: ${songs[currentSongIndex]?.title}`); // Debugging
+            audioLoadError = false; // Reset error flag on successful load
+            playBtn.disabled = false; // Enable play button ONLY when audio is ready
+            instructionsP.textContent = `Song ${playedIndices.size} of ${songs.length}. Press "Play Snippet".`;
+            // Remove this specific listener instance cleanly
+            audioPlayer.removeEventListener('canplaythrough', onCanPlayThrough);
+            audioPlayer.removeEventListener('error', onAudioLoadError); // Also remove error listener for this load attempt
+        };
+
+        const onAudioLoadError = (e) => {
+            const songTitle = songs[currentSongIndex]?.title || 'Unknown Song';
+            console.error(`Audio loading error for ${songTitle}:`, e);
+            feedbackDiv.textContent = `Error loading: ${songTitle}. Check URL or network. Skipping.`;
+            feedbackDiv.className = 'incorrect';
+            feedbackDiv.style.display = 'block';
+            audioLoadError = true; // Set error flag
+
+            // UI Updates for load error
+            playBtn.disabled = true; // Keep play button disabled
+            submitBtn.disabled = true; // Disable guessing if audio failed to load
+            guessInput.disabled = true;
+
+            nextBtn.style.display = 'inline-block'; // Show next button immediately
+            if (playedIndices.size >= songs.length) {
+                nextBtn.textContent = "Show Final Score";
+            } else {
+                nextBtn.textContent = "Next Song";
+            }
+             // Remove this specific listener instance cleanly
+            audioPlayer.removeEventListener('canplaythrough', onCanPlayThrough);
+            audioPlayer.removeEventListener('error', onAudioLoadError);
+        };
+
 
         // --- Functions ---
 
@@ -191,7 +224,18 @@
         }
 
         function loadSong() {
+            // Stop any currently playing snippet immediately
+            if (currentAudioTimeout) {
+                clearTimeout(currentAudioTimeout);
+                currentAudioTimeout = null;
+            }
+             if (!audioPlayer.paused) {
+                 audioPlayer.pause();
+             }
+
+
             currentSongIndex = getRandomSongIndex();
+            audioLoadError = false; // Reset error flag for the new song
 
             if (currentSongIndex === -1) {
                 endGame("You've heard all the songs!");
@@ -199,154 +243,4 @@
             }
 
             const song = songs[currentSongIndex];
-            audioPlayer.src = song.url;
-            audioPlayer.load(); // Prepares the audio player
-
-            // Reset UI for the new song
-            guessInput.value = '';
-            feedbackDiv.textContent = '';
-            feedbackDiv.className = ''; // Remove correct/incorrect classes
-            answerDiv.style.display = 'none'; // Hide previous answer
-            guessInput.disabled = false;
-            submitBtn.disabled = false;
-            playBtn.disabled = false; // Enable play button *after* loading
-            nextBtn.style.display = 'none'; // Hide Next Song button until guess is made
-            guessSectionDiv.style.display = 'block'; // Show guessing UI
-            instructionsP.textContent = `Song ${playedIndices.size} of ${songs.length}. Press "Play Snippet".`; // Use playedIndices.size for 1-based counting
-
-            return true; // Song loaded successfully
-        }
-
-        function playSnippet() {
-            if (!audioPlayer.src || currentSongIndex === -1) return;
-
-            audioPlayer.currentTime = 0;
-            audioPlayer.play()
-                .then(() => {
-                    playBtn.disabled = true;
-                    if (currentAudio) clearTimeout(currentAudio);
-                    currentAudio = setTimeout(() => {
-                        audioPlayer.pause();
-                        playBtn.disabled = false;
-                        currentAudio = null;
-                    }, snippetDuration * 1000);
-                })
-                .catch(error => {
-                    console.error("Error playing audio:", error);
-                    feedbackDiv.textContent = "Error playing audio. Try again or check console.";
-                    feedbackDiv.className = 'incorrect';
-                    playBtn.disabled = false;
-                });
-        }
-
-
-        function checkGuess() {
-            if (currentSongIndex === -1) return;
-
-            const userGuess = guessInput.value.trim().toLowerCase();
-            const correctTitle = songs[currentSongIndex].title.trim().toLowerCase();
-
-            if (currentAudio) {
-                clearTimeout(currentAudio);
-                audioPlayer.pause();
-                currentAudio = null;
-            }
-
-            // Increment songsPlayed here, after a guess is submitted for the current song
-            // Note: We use playedIndices.size in loadSong for "Song X of Y" display
-            // but track actual *attempts* with songsPlayed for score display.
-            // Let's keep it simple: use playedIndices.size for the total in score too.
-            // songsPlayed = playedIndices.size; // Use the count of unique songs presented
-
-            if (userGuess === correctTitle) {
-                score++;
-                feedbackDiv.textContent = "Correct!";
-                feedbackDiv.className = 'correct';
-            } else {
-                feedbackDiv.textContent = "Incorrect!";
-                feedbackDiv.className = 'incorrect';
-            }
-
-            answerDiv.textContent = `The song was: ${songs[currentSongIndex].title} by ${songs[currentSongIndex].artist}`;
-            answerDiv.style.display = 'block';
-            feedbackDiv.style.display = 'block';
-
-            // Update score display using the count of songs presented so far
-             scoreDiv.textContent = `Score: ${score} / ${playedIndices.size}`;
-
-            guessInput.disabled = true;
-            submitBtn.disabled = true;
-            playBtn.disabled = true;
-
-            nextBtn.style.display = 'inline-block';
-            if (playedIndices.size >= songs.length) {
-                 nextBtn.textContent = "Show Final Score";
-            } else {
-                 nextBtn.textContent = "Next Song";
-            }
-        }
-
-         function nextRound() {
-             // songsPlayed state is managed implicitly by playedIndices.size now
-             if (playedIndices.size >= songs.length) {
-                endGame("Game Over!");
-             } else {
-                if (!loadSong()) {
-                    // This case should technically not be reachable if the size check is correct
-                     endGame("Couldn't load the next song.");
-                 }
-             }
-         }
-
-        function startGame() {
-             score = 0;
-             // songsPlayed = 0; // No longer needed explicitly
-             playedIndices.clear(); // Reset played songs for a new game
-             scoreDiv.textContent = `Score: 0 / 0`;
-             feedbackDiv.style.display = 'none';
-             answerDiv.style.display = 'none';
-             startBtn.style.display = 'none'; // Hide Start button
-             nextBtn.textContent = 'Next Song'; // Ensure it says 'Next Song'
-
-             if (!loadSong()) { // Load the first song
-                 endGame("No songs available to start the game.");
-             } else {
-                 instructionsP.textContent = `Game started! Song ${playedIndices.size} of ${songs.length}. Press "Play Snippet".`;
-             }
-        }
-
-        function endGame(message) {
-             // Final score uses the total number of unique songs presented (playedIndices.size)
-             instructionsP.textContent = `${message} Final Score: ${score} / ${playedIndices.size}`;
-             playBtn.disabled = true;
-             submitBtn.disabled = true;
-             guessInput.disabled = true;
-             guessSectionDiv.style.display = 'none'; // Hide guessing area
-             nextBtn.style.display = 'none'; // Hide 'Next/End' button
-             startBtn.style.display = 'inline-block'; // Show start button again
-             startBtn.textContent = 'Play Again?'; // Change text for replay
-             if (currentAudio) {
-                 clearTimeout(currentAudio);
-                 audioPlayer.pause();
-                 currentAudio = null;
-             }
-             audioPlayer.src = ''; // Clear audio source
-        }
-
-
-        // --- Event Listeners ---
-        startBtn.addEventListener('click', startGame);
-        playBtn.addEventListener('click', playSnippet);
-        submitBtn.addEventListener('click', checkGuess);
-        nextBtn.addEventListener('click', nextRound);
-
-         guessInput.addEventListener('keypress', function(event) {
-             if (event.key === 'Enter' && !submitBtn.disabled) {
-                 event.preventDefault();
-                 checkGuess();
-             }
-         });
-
-    </script>
-</body>
-</html>
+            console.log(`Loading song ${playedIndices.size}: ${song.title
