@@ -3,112 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blind Test Game (v3 - Alt Audio Test)</title> <style>
-        /* CSS Styles remain the same as v2 */
-        body {
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f0f0f0;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        #game-container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            width: 100%;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        p {
-            color: #555;
-            line-height: 1.6;
-        }
-
-        #controls button,
-        #guess-section button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin: 10px 5px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            transition: background-color 0.3s ease;
-        }
-
-        #controls button:hover,
-        #guess-section button:hover {
-            background-color: #0056b3;
-        }
-
-        #controls button:disabled,
-        #guess-section button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-
-        #guess-input {
-            padding: 10px;
-            font-size: 16px;
-            margin: 10px 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: calc(100% - 22px); /* Adjust for padding and border */
-            max-width: 300px;
-        }
-
-        #feedback {
-            margin-top: 15px;
-            font-weight: bold;
-            min-height: 1.2em; /* Reserve space to prevent layout jumps */
-        }
-
-        #feedback.correct {
-            color: #28a745; /* Green */
-        }
-
-        #feedback.incorrect {
-            color: #dc3545; /* Red */
-        }
-
-         #answer {
-            margin-top: 10px;
-            color: #17a2b8; /* Info blue */
-            font-style: italic;
-             min-height: 1.2em; /* Reserve space */
-        }
-
-        #score {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        /* Hide elements initially */
-        #guess-section, #next-btn, #feedback, #answer {
-            display: none;
-        }
-         #audio-player {
-             display: none; /* Hide the default audio player controls */
-         }
+    <title>Blind Test Game (v4 - Listener Test)</title> <style>
+        /* CSS Styles remain the same */
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f0f0; text-align: center; padding: 20px; box-sizing: border-box; }
+        #game-container { background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-width: 500px; width: 100%; }
+        h1 { color: #333; margin-bottom: 20px; }
+        p { color: #555; line-height: 1.6; }
+        #controls button, #guess-section button { padding: 10px 20px; font-size: 16px; margin: 10px 5px; cursor: pointer; border: none; border-radius: 5px; background-color: #007bff; color: white; transition: background-color 0.3s ease; }
+        #controls button:hover, #guess-section button:hover { background-color: #0056b3; }
+        #controls button:disabled, #guess-section button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #guess-input { padding: 10px; font-size: 16px; margin: 10px 5px; border: 1px solid #ccc; border-radius: 5px; width: calc(100% - 22px); max-width: 300px; }
+        #feedback { margin-top: 15px; font-weight: bold; min-height: 1.2em; }
+        #feedback.correct { color: #28a745; }
+        #feedback.incorrect { color: #dc3545; }
+        #answer { margin-top: 10px; color: #17a2b8; font-style: italic; min-height: 1.2em; }
+        #score { margin-top: 20px; font-size: 18px; font-weight: bold; }
+        #guess-section, #next-btn, #feedback, #answer { display: none; }
+        #audio-player { display: none; }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <h1>Blind Test Game (v3 - Alt Audio Test)</h1> <p id="instructions">Press "Start Game" to begin!</p>
+        <h1>Blind Test Game (v4 - Listener Test)</h1> <p id="instructions">Press "Start Game" to begin!</p>
 
         <audio id="audio-player" preload="auto"></audio>
 
@@ -129,27 +45,14 @@
     </div>
 
     <script>
-        // --- Configuration ---
-        const snippetDuration = 10; // Play snippet for 10 seconds
-        const songs = [
-            // Replaced first 3 with non-Pixabay sources for testing
-            { title: "Childhood", artist: "Scott Buckley (CC BY)", url: "https://www.scottbuckley.com.au/library/wp-content/uploads/2020/12/Scott_Buckley_-_Childhood.mp3" },
-            { title: "Monkeys Spinning Monkeys", artist: "Kevin MacLeod (CC BY)", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Monkeys%20Spinning%20Monkeys.mp3" },
-            { title: "Jaunty Gumption", artist: "Unknown (freepd.com - CC0)", url: "https://freepd.com/music/Jaunty%20Gumption.mp3" },
-       
-        ];
-
-        // --- Game State Variables ---
-        // (Remain the same as v2)
-        let currentSongIndex = -1;
-        let score = 0;
-        let playedIndices = new Set();
-        let currentAudioTimeout = null;
-        let audioLoadError = false;
+        // --- Minimal setup for testing listener ---
 
         // --- DOM Elements ---
-        // (Remain the same as v2)
+        console.log("Getting DOM elements...");
         const startBtn = document.getElementById('start-btn');
+        console.log('startBtn element:', startBtn); // Check if button element is found
+
+        // Other elements (not used in simplified startGame, but keep refs)
         const playBtn = document.getElementById('play-btn');
         const nextBtn = document.getElementById('next-btn');
         const submitBtn = document.getElementById('submit-btn');
@@ -160,164 +63,89 @@
         const instructionsP = document.getElementById('instructions');
         const guessSectionDiv = document.getElementById('guess-section');
         const audioPlayer = document.getElementById('audio-player');
+        console.log("DOM elements references obtained (or null if ID mismatch).");
 
-        // --- Event Handlers (defined once) ---
-        // (Remain the same as v2)
-         const onCanPlayThrough = () => {
-            // Use optional chaining ?. in case currentSongIndex is briefly invalid during state changes
-            console.log(`Audio ready: ${songs[currentSongIndex]?.title}`);
-            audioLoadError = false;
-            playBtn.disabled = false;
-            instructionsP.textContent = `Song ${playedIndices.size} of ${songs.length}. Press "Play Snippet".`;
-            audioPlayer.removeEventListener('canplaythrough', onCanPlayThrough);
-            audioPlayer.removeEventListener('error', onAudioLoadError);
-        };
 
-        const onAudioLoadError = (e) => {
-            const songTitle = songs[currentSongIndex]?.title || 'Unknown Song';
-            console.error(`Audio loading error for ${songTitle}:`, e);
-            feedbackDiv.textContent = `Error loading: ${songTitle}. Check URL or network. Skipping.`;
-            feedbackDiv.className = 'incorrect';
-            feedbackDiv.style.display = 'block';
-            audioLoadError = true;
+        // --- Simplified startGame Function for Testing ---
+        function startGame() {
+            console.log("startGame function CALLED!"); // Log entry into the function
 
-            playBtn.disabled = true;
-            submitBtn.disabled = true;
-            guessInput.disabled = true;
-
-            nextBtn.style.display = 'inline-block';
-            if (playedIndices.size >= songs.length) {
-                nextBtn.textContent = "Show Final Score";
+            // Test 1: Directly manipulate an element WITHOUT relying on other functions yet
+            const mainTitle = document.querySelector('#game-container h1');
+            if (mainTitle) {
+                // Change the text content to give visual feedback
+                mainTitle.textContent = 'startGame WAS CALLED!';
+                console.log('H1 Title Changed.');
             } else {
-                nextBtn.textContent = "Next Song";
+                console.error('Could not find H1 element! Check selector.');
             }
-            audioPlayer.removeEventListener('canplaythrough', onCanPlayThrough);
-            audioPlayer.removeEventListener('error', onAudioLoadError);
-        };
 
-        // --- Functions ---
-        // (Remain the same as v2 - getRandomSongIndex, loadSong, playSnippet, checkGuess, nextRound, startGame, endGame)
-
-        function getRandomSongIndex() {
-            if (playedIndices.size >= songs.length) {
-                return -1;
+            // Test 2: Try manipulating the button that was clicked
+            if (startBtn) {
+                 startBtn.textContent = 'Clicked!'; // Change button text
+                 // startBtn.style.display = 'none'; // Optionally hide it
+                 console.log('Start button text changed.');
+            } else {
+                 console.error('startBtn variable is null inside startGame!');
             }
-            let randomIndex;
-            do {
-                randomIndex = Math.floor(Math.random() * songs.length);
-            } while (playedIndices.has(randomIndex));
-            playedIndices.add(randomIndex);
-            return randomIndex;
+
+            // --- Temporarily comment out the actual game logic ---
+            /*
+             score = 0;
+             playedIndices.clear();
+             scoreDiv.textContent = `Score: 0 / 0`;
+             feedbackDiv.style.display = 'none';
+             answerDiv.style.display = 'none';
+             startBtn.style.display = 'none'; // Original logic hides button
+             playBtn.disabled = true;
+             nextBtn.textContent = 'Next Song';
+             audioLoadError = false; // Assuming these variables were defined earlier if needed
+
+             console.log("Attempting to call loadSong() from startGame...");
+             if (!loadSong()) { // Assuming loadSong exists
+                 console.error("loadSong() returned false in startGame.");
+                 // Assuming endGame exists
+                 endGame("No songs available to start the game.");
+             } else {
+                 console.log("loadSong() called successfully from startGame.");
+             }
+            */
         }
 
-        function loadSong() {
-             if (currentAudioTimeout) {
-                clearTimeout(currentAudioTimeout);
-                currentAudioTimeout = null;
-            }
-             if (!audioPlayer.paused) {
-                 audioPlayer.pause();
-             }
+        // --- Dummy functions needed if uncommenting above ---
+        /*
+        let score = 0; // Define variables if uncommenting game logic
+        let playedIndices = new Set();
+        let audioLoadError = false;
+        function loadSong() { console.log("loadSong() dummy called"); return true; }
+        function endGame(msg) { console.log("endGame() dummy called:", msg); }
+        */
 
-            currentSongIndex = getRandomSongIndex();
-            audioLoadError = false;
 
-            if (currentSongIndex === -1) {
-                endGame("You've heard all the songs!");
-                return false;
-            }
-
-            const song = songs[currentSongIndex];
-            console.log(`Loading song ${playedIndices.size}: ${song.title} from ${song.url}`); // Log URL
-
-            playBtn.disabled = true;
-            feedbackDiv.textContent = '';
-            feedbackDiv.className = '';
-            answerDiv.textContent = '';
-            answerDiv.style.display = 'none';
-
-            audioPlayer.removeEventListener('canplaythrough', onCanPlayThrough);
-            audioPlayer.removeEventListener('error', onAudioLoadError);
-
-            // Add listeners with { once: true } for automatic removal after firing once
-            audioPlayer.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
-            audioPlayer.addEventListener('error', onAudioLoadError, { once: true });
-
-            // *** Add specific error handling for network/decode issues ***
-            audioPlayer.onerror = (e) => {
-                 // Call the shared handler, but ensure it runs only once
-                 if (!audioLoadError) { // Prevent double calls if error event fires multiple times
-                    onAudioLoadError(e);
-                 }
-                 // Additionally log more details if possible
-                 console.error("Audio Element Error Event:", audioPlayer.error);
-             };
-
-            audioPlayer.src = song.url;
-            audioPlayer.load(); // Start loading the new source
-
-            guessInput.value = '';
-            guessInput.disabled = false;
-            submitBtn.disabled = false;
-            nextBtn.style.display = 'none';
-            guessSectionDiv.style.display = 'block';
-            instructionsP.textContent = `Song ${playedIndices.size} of ${songs.length}. Loading audio...`;
-
-            return true;
+        // --- Event Listener Attachment ---
+        console.log("Checking startBtn before adding listener...");
+        if (startBtn) {
+            console.log("Element found. Adding event listener to startBtn...");
+            startBtn.addEventListener('click', startGame);
+            console.log("Event listener ADDED to startBtn.");
+        } else {
+            console.error("Cannot add listener: startBtn element not found! Check HTML ID ('start-btn').");
         }
 
-         function playSnippet() {
-             if (!audioPlayer.src || currentSongIndex === -1 || audioLoadError) {
-                 console.warn("Play attempted when audio source invalid, index wrong, or load error occurred.");
-                 feedbackDiv.textContent = "Cannot play audio. Try the next song.";
-                 feedbackDiv.className = 'incorrect';
-                 feedbackDiv.style.display = 'block';
-                 playBtn.disabled = true;
-                 return;
+        // --- Other Listeners (keep them, though targets might not be active) ---
+        /*
+        playBtn.addEventListener('click', playSnippet);
+        submitBtn.addEventListener('click', checkGuess);
+        nextBtn.addEventListener('click', nextRound);
+        guessInput.addEventListener('keypress', function(event) {
+             if (event.key === 'Enter' && !submitBtn.disabled) {
+                 event.preventDefault();
+                 checkGuess();
              }
-             // Use readyState 4 (HAVE_ENOUGH_DATA) for a stricter check if needed
-             if (audioPlayer.readyState < 3) { // HAVE_FUTURE_DATA or more needed
-                 console.warn(`Play attempted when readyState is ${audioPlayer.readyState}. Waiting for more data.`);
-                 feedbackDiv.textContent = "Audio still loading, please wait a moment.";
-                 feedbackDiv.className = 'incorrect';
-                 feedbackDiv.style.display = 'block';
-                 return;
-             }
+         });
+        */
+         console.log("Initial script setup complete.");
 
-            console.log(`Attempting to play: ${songs[currentSongIndex].title}`);
-
-            audioPlayer.currentTime = 0;
-            // Wrap play() in try...catch for immediate errors, although promise handles async ones
-            try {
-                const playPromise = audioPlayer.play();
-
-                if (playPromise !== undefined) {
-                    playPromise.then(_ => {
-                        console.log("Playback started successfully.");
-                        playBtn.disabled = true;
-                        if (currentAudioTimeout) clearTimeout(currentAudioTimeout);
-                        currentAudioTimeout = setTimeout(() => {
-                            audioPlayer.pause();
-                            playBtn.disabled = false;
-                            currentAudioTimeout = null;
-                            console.log("Snippet finished.");
-                        }, snippetDuration * 1000);
-                    }).catch(error => {
-                        console.error("Error during async playback:", error);
-                        feedbackDiv.textContent = `Playback Error: ${error.message}. Try again or check console.`;
-                        feedbackDiv.className = 'incorrect';
-                        feedbackDiv.style.display = 'block';
-                        playBtn.disabled = false;
-                         // If specific errors occur, log them
-                         if (error.name === 'NotAllowedError') {
-                            console.error("Playback prevented: Possibly requires user interaction first (shouldn't happen after 'Start Game' usually).");
-                         } else if (error.name === 'NotSupportedError') {
-                             console.error("Playback error: Audio format may not be supported or source unavailable.");
-                         }
-                    });
-                 } else {
-                      // Fallback for older browsers where play() might not return a promise
-                      // (Less likely now, but safe to consider)
-                      console.log("Playback started (no promise returned).");
-                      playBtn.disabled = true;
-                      if (currentAudioTimeout) clearTimeout(currentAudioTimeout);
+    </script>
+</body>
+</html>
