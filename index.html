@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blind Test Game (v5 - Dummy LoadSong)</title> <style>
+    <title>Blind Test Game (v6 - Check Button State)</title> <style>
         /* CSS Styles remain the same */
         body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f0f0; text-align: center; padding: 20px; box-sizing: border-box; }
         #game-container { background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-width: 500px; width: 100%; }
@@ -11,7 +11,13 @@
         p { color: #555; line-height: 1.6; }
         #controls button, #guess-section button { padding: 10px 20px; font-size: 16px; margin: 10px 5px; cursor: pointer; border: none; border-radius: 5px; background-color: #007bff; color: white; transition: background-color 0.3s ease; }
         #controls button:hover, #guess-section button:hover { background-color: #0056b3; }
-        #controls button:disabled, #guess-section button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        /* Explicit style for disabled state might help override browser defaults */
+        #controls button:disabled, #guess-section button:disabled {
+            background-color: #cccccc !important; /* Added !important */
+            color: #666666 !important; /* Added !important */
+            cursor: not-allowed !important; /* Added !important */
+            opacity: 0.6 !important; /* Added !important */
+        }
         #guess-input { padding: 10px; font-size: 16px; margin: 10px 5px; border: 1px solid #ccc; border-radius: 5px; width: calc(100% - 22px); max-width: 300px; }
         #feedback { margin-top: 15px; font-weight: bold; min-height: 1.2em; }
         #feedback.correct { color: #28a745; }
@@ -24,40 +30,43 @@
 </head>
 <body>
     <div id="game-container">
-        <h1>Blind Test Game (v5 - Dummy LoadSong)</h1>
-        <p id="instructions">Press "Start Game" to begin!</p>
+        <h1>Blind Test Game (v6 - Check Button State)</h1> <p id="instructions">Press "Start Game" to begin!</p>
 
         <audio id="audio-player" preload="auto"></audio>
 
         <div id="controls">
             <button id="start-btn">Start Game</button>
-            <button id="play-btn" disabled>Play Snippet</button> <button id="next-btn">Next Song</button> </div>
+            <button id="play-btn" disabled>Play Snippet</button> <button id="next-btn">Next Song</button>
+        </div>
 
-        <div id="guess-section"> <input type="text" id="guess-input" placeholder="Enter song title guess">
+        <div id="guess-section">
+            <input type="text" id="guess-input" placeholder="Enter song title guess">
             <button id="submit-btn">Submit Guess</button>
         </div>
 
-        <div id="feedback"></div> <div id="answer"></div> <div id="score">Score: 0 / 0</div> </div>
+        <div id="feedback"></div>
+        <div id="answer"></div>
+        <div id="score">Score: 0 / 0</div>
+    </div>
 
     <script>
-        // --- Configuration (Keep songs list for size calculation) ---
+        // --- Configuration ---
         const snippetDuration = 10;
-        const songs = [ // Using the 3 non-Pixabay songs from v3 for count consistency
+        const songs = [ // Keep dummy list
             { title: "Childhood", artist: "Scott Buckley (CC BY)", url: "..." },
             { title: "Monkeys Spinning Monkeys", artist: "Kevin MacLeod (CC BY)", url: "..." },
             { title: "Jaunty Gumption", artist: "Unknown (freepd.com - CC0)", url: "..." },
-            // Add more dummy entries if needed for song count display
         ];
-        const totalSongs = songs.length; // Get total number of songs
+        const totalSongs = songs.length;
 
         // --- Game State Variables ---
-        let currentSongIndex = -1; // Keep track of which song (even if dummy)
+        let currentSongIndex = -1;
         let score = 0;
-        let playedIndices = new Set(); // Use Set to track unique songs played
-        let currentAudioTimeout = null; // Manage snippet timeout
-        let audioLoadError = false; // Track if dummy load fails (it won't here)
+        let playedIndices = new Set();
+        let currentAudioTimeout = null;
+        let audioLoadError = false;
 
-        // --- DOM Elements References ---
+        // --- DOM Elements ---
         console.log("Getting DOM elements...");
         const startBtn = document.getElementById('start-btn');
         const playBtn = document.getElementById('play-btn');
@@ -69,69 +78,72 @@
         const scoreDiv = document.getElementById('score');
         const instructionsP = document.getElementById('instructions');
         const guessSectionDiv = document.getElementById('guess-section');
-        const audioPlayer = document.getElementById('audio-player'); // Ref needed even if not used directly yet
-        console.log('startBtn element:', startBtn); // Confirm button found
+        const audioPlayer = document.getElementById('audio-player');
+        console.log('startBtn element:', startBtn);
+        console.log('playBtn element:', playBtn); // Log playBtn too
         console.log("DOM elements references obtained.");
 
         // --- Main Game Functions ---
 
-        // Simplified loadSong for testing startGame interaction
+        // Simplified loadSong with extra checks
         function loadSong() {
             console.log("loadSong CALLED (Simplified Version)");
-            playedIndices.add(playedIndices.size); // Simulate playing unique songs
-            currentSongIndex = playedIndices.size - 1; // Simulate index
+            playedIndices.add(playedIndices.size);
+            currentSongIndex = playedIndices.size - 1;
             console.log(`Simulating song load for index ${currentSongIndex}. Total played: ${playedIndices.size}`);
 
-            // Simulate successful load: Enable Play button and update text
+            // --- Debugging focus area ---
             console.log("Simulating successful load: Enabling Play button...");
-            playBtn.disabled = false;
+            console.log('playBtn element reference JUST BEFORE enabling:', playBtn); // Verify reference here
+            console.log('playBtn.disabled state JUST BEFORE setting:', playBtn.disabled); // Check state BEFORE
+            playBtn.disabled = false; // Attempt to enable
+            console.log('playBtn.disabled state IMMEDIATELY AFTER setting:', playBtn.disabled); // Check state AFTER
+            // --- End Debugging focus area ---
+
             instructionsP.textContent = `Song ${playedIndices.size} of ${totalSongs}. (Simulated Load) Press Play Snippet.`;
-            guessSectionDiv.style.display = 'block'; // Show guess section
-            feedbackDiv.style.display = 'none';   // Hide feedback/answer
+            guessSectionDiv.style.display = 'block';
+            feedbackDiv.style.display = 'none';
             answerDiv.style.display = 'none';
-            nextBtn.style.display = 'none';       // Hide next button
+            nextBtn.style.display = 'none';
 
             console.log("loadSong finished (Simplified Version), returning true.");
-            return true; // Simulate success
+            return true;
         }
 
-        // Restored startGame function
+        // Restored startGame function (same as v5)
         function startGame() {
              console.log("startGame function CALLED!");
              score = 0;
-             playedIndices.clear(); // Reset played songs
-             audioLoadError = false; // Reset error flag
-
-             // Update UI immediately
+             playedIndices.clear();
+             audioLoadError = false;
              scoreDiv.textContent = `Score: 0 / 0`;
-             feedbackDiv.style.display = 'none'; // Hide feedback
-             answerDiv.style.display = 'none';   // Hide answer
-             startBtn.style.display = 'none';    // Hide Start button
-             playBtn.disabled = true;            // Ensure play is disabled initially
-             nextBtn.style.display = 'none';     // Ensure next is hidden initially
-             nextBtn.textContent = 'Next Song';  // Reset next button text
-             console.log("Initial UI reset in startGame complete.");
+             feedbackDiv.style.display = 'none';
+             answerDiv.style.display = 'none';
+             startBtn.style.display = 'none';
+             playBtn.disabled = true; // Ensure it starts disabled for the test
+             nextBtn.style.display = 'none';
+             nextBtn.textContent = 'Next Song';
+             console.log("Initial UI reset in startGame complete. Play button explicitly disabled."); // Log disabled state
 
              console.log("Calling loadSong() from startGame...");
-             if (!loadSong()) { // Call the simplified loadSong
-                 console.error("loadSong() returned false in startGame (Simplified version shouldn't fail).");
-                 // Assuming endGame exists or define a dummy
+             if (!loadSong()) {
+                 console.error("loadSong() returned false in startGame.");
                  endGame("No songs available to start the game.");
              } else {
-                 console.log("loadSong() called successfully from startGame. Check UI updates from loadSong.");
-                 // Check if guess section appears now
-                 console.log("Is guess section visible?", guessSectionDiv.style.display);
+                 console.log("loadSong() called successfully from startGame.");
+                 // Check the button state again after loadSong finishes, just in case
+                  console.log('playBtn.disabled state AFTER loadSong call returns:', playBtn.disabled);
              }
         }
 
-        // --- Dummy functions needed for completeness ---
-        function playSnippet() { console.warn("playSnippet called - Real audio playback disabled in this version."); }
-        function checkGuess() { console.warn("checkGuess called - Guessing disabled in this version."); }
-        function nextRound() { console.warn("nextRound called - Not fully implemented in this version."); loadSong(); /* Call dummy loadSong again */}
+        // --- Dummy functions ---
+        function playSnippet() { console.warn("playSnippet called - Real audio playback disabled."); }
+        function checkGuess() { console.warn("checkGuess called - Guessing disabled."); }
+        function nextRound() { console.warn("nextRound called - Dummy loadSong called."); loadSong(); }
         function endGame(message) {
              console.log(`endGame called: ${message}`);
              instructionsP.textContent = `${message} Final Score: ${score} / ${playedIndices.size}`;
-             playBtn.disabled = true;
+             playBtn.disabled = true; // Ensure disabled on end
              submitBtn.disabled = true;
              guessInput.disabled = true;
              guessSectionDiv.style.display = 'none';
@@ -140,29 +152,21 @@
              startBtn.textContent = 'Play Again?';
         }
 
-
         // --- Event Listener Attachment ---
         console.log("Checking startBtn before adding listener...");
-        if (startBtn) {
-            console.log("Element found. Adding event listener to startBtn...");
+        if (startBtn && playBtn) { // Check both buttons exist
+            console.log("Elements found. Adding event listeners...");
             startBtn.addEventListener('click', startGame);
-            console.log("Event listener ADDED to startBtn.");
+            playBtn.addEventListener('click', playSnippet); // Keep listener attached
+            // Add others if needed for testing later
+            // submitBtn.addEventListener('click', checkGuess);
+            // nextBtn.addEventListener('click', nextRound);
+            console.log("Event listeners ADDED.");
         } else {
-            console.error("Cannot add listener: startBtn element not found! Check HTML ID ('start-btn').");
+            console.error("Cannot add listeners: startBtn or playBtn element not found!");
         }
 
-        // Add other listeners (they will call dummy functions)
-        playBtn.addEventListener('click', playSnippet);
-        submitBtn.addEventListener('click', checkGuess);
-        nextBtn.addEventListener('click', nextRound);
-        guessInput.addEventListener('keypress', function(event) {
-             if (event.key === 'Enter' && !submitBtn.disabled) {
-                 event.preventDefault();
-                 checkGuess();
-             }
-         });
-
-         console.log("Initial script setup complete.");
+        console.log("Initial script setup complete.");
 
     </script>
 </body>
