@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blind Test Game</title> <style>
-        /* Final CSS (same as v7 without !important) */
+    <title>Blind Test Game</title>
+    <style>
+        /* Final CSS */
         body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f0f0; text-align: center; padding: 20px; box-sizing: border-box; }
         #game-container { background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); max-width: 500px; width: 100%; }
         h1 { color: #333; margin-bottom: 20px; }
@@ -26,7 +27,8 @@
 </head>
 <body>
     <div id="game-container">
-        <h1>Blind Test Game</h1> <p id="instructions">Press "Start Game" to begin!</p>
+        <h1>Blind Test Game</h1>
+        <p id="instructions">Press "Start Game" to begin!</p>
 
         <audio id="audio-player" preload="auto"></audio>
 
@@ -49,29 +51,30 @@
     <script>
         // --- Configuration ---
         const snippetDuration = 10; // Seconds
+        // Music by Kevin MacLeod (incompetech.com)
+        // Licensed under Creative Commons: By Attribution 4.0 (CC BY 4.0)
+        // http://creativecommons.org/licenses/by/4.0/
         const songs = [
-            // 20 Tracks from Pixabay & Incompetech
             { title: "Monkeys Spinning Monkeys", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Monkeys%20Spinning%20Monkeys.mp3" },
-            { title: "Lofi Study", artist: "FASSounds (Pixabay)", url: "https://cdn.pixabay.com/audio/2022/05/27/audio_1819c1671f.mp3" },
-            { title: "The Beat of Nature", artist: "Olexy (Pixabay)", url: "https://cdn.pixabay.com/audio/2022/01/18/audio_ea80767449.mp3" },
-            { title: "Smoke", artist: "SoulProdMusic (Pixabay)", url: "https://cdn.pixabay.com/audio/2023/08/01/audio_a3007a175f.mp3" },
             { title: "Carefree", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Carefree.mp3" },
-            { title: "Tropical Summer", artist: "Luke Bergs (Pixabay)", url: "https://cdn.pixabay.com/audio/2021/08/09/audio_a81e2f9802.mp3" },
-            { title: "In the Moment", artist: "Alexi Action (Pixabay)", url: "https://cdn.pixabay.com/audio/2022/12/21/audio_340d2b1a49.mp3" },
             { title: "Fluffing a Duck", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Fluffing%20a%20Duck.mp3" },
-            { title: "Just Relax", artist: "Lesfm (Pixabay)", url: "https://cdn.pixabay.com/audio/2021/11/23/audio_8c1398b720.mp3" },
-            { title: "Good Night", artist: "FASSounds (Pixabay)", url: "https://cdn.pixabay.com/audio/2022/04/07/audio_7961d3705c.mp3" },
-            { title: "Scheming Weasel (faster version)", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Scheming%20Weasel%20(faster%20version).mp3" },
-            { title: "Inspiring Cinematic Ambient", artist: "Lexin_Music (Pixabay)", url: "https://cdn.pixabay.com/audio/2022/08/04/audio_2dead139f7.mp3" },
             { title: "Run Amok", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Run%20Amok.mp3" },
-            { title: "Ukulele Fun", artist: "Playsound (Pixabay)", url: "https://cdn.pixabay.com/audio/2022/06/14/audio_4f3b015f6a.mp3" },
-            { title: "Spirit Blossom", artist: "RomanSenykMusic (Pixabay)", url: "https://cdn.pixabay.com/audio/2022/02/07/audio_67c71a8418.mp3" },
-            { title: "Morning Garden Acoustic", artist: "Olexy (Pixabay)", url: "https://cdn.pixabay.com/audio/2022/10/11/audio_5708164799.mp3" },
+            { title: "Scheming Weasel (faster version)", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Scheming%20Weasel%20(faster%20version).mp3" },
             { title: "Pixel Peeker Polka (faster)", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Pixel%20Peeker%20Polka%20-%20faster.mp3" },
-            { title: "The Introvert", artist: "Michael Kobrin (Pixabay)", url: "https://cdn.pixabay.com/audio/2021/11/17/audio_7945c36c37.mp3" },
-            { title: "8 Bit Retro", artist: "ComaStudio (Pixabay)", url: "https://cdn.pixabay.com/audio/2022/01/27/audio_a31f865623.mp3" },
-            { title: "Empty Mind", artist: "Lofi_hour (Pixabay)", url: "https://cdn.pixabay.com/audio/2023/11/05/audio_40614c1b40.mp3" }
-            // Note: Kevin MacLeod tracks require attribution (CC BY 4.0). Pixabay license is generally more permissive.
+            { title: "Amazing Plan", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Amazing%20Plan.mp3" },
+            { title: "Backed Vibes Clean", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Backed%20Vibes%20Clean.mp3" },
+            { title: "Bumbly March", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Bumbly%20March.mp3" },
+            { title: "Cool Vibes", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Cool%20Vibes.mp3" },
+            { title: "Covert Affair", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Covert%20Affair.mp3" },
+            { title: "Daily Beetle", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Daily%20Beetle.mp3" },
+            { title: "Hyperfun", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Hyperfun.mp3" },
+            { title: "Industrious Ferret", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Industrious%20Ferret.mp3" },
+            { title: "Local Forecast - Elevator", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Local%20Forecast%20-%20Elevator.mp3" },
+            { title: "Meatball Parade", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Meatball%20Parade.mp3" },
+            { title: "Merry Go", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Merry%20Go.mp3" },
+            { title: "Mining by Moonlight", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Mining%20by%20Moonlight.mp3" },
+            { title: "Mischief Maker", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Mischief%20Maker.mp3" },
+            { title: "Getting it Done", artist: "Kevin MacLeod", url: "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Getting%20it%20Done.mp3" }
         ];
         const totalSongs = songs.length;
 
@@ -97,7 +100,7 @@
 
         // --- Audio Event Handlers ---
          const onCanPlayThrough = () => {
-            console.log(`Audio ready: ${songs[currentSongIndex]?.title}`); // Keep this log
+            // console.log(`Audio ready: ${songs[currentSongIndex]?.title}`);
             audioLoadError = false;
             playBtn.disabled = false; // Enable play button
             instructionsP.textContent = `Song ${playedIndices.size} of ${totalSongs}. Press "Play Snippet".`;
@@ -105,19 +108,20 @@
 
         const onAudioLoadError = (e) => {
             const songTitle = songs[currentSongIndex]?.title || 'Unknown Song';
-            console.error(`Audio loading error for ${songTitle}:`, e); // Keep error log
+            console.error(`Audio loading error for ${songTitle}:`, e); // Log error
             audioLoadError = true;
             playBtn.disabled = true;
-            feedbackDiv.textContent = `Error loading: ${songTitle}. Check URL or network. Skipping.`;
+            feedbackDiv.textContent = `Error loading: ${songTitle}. Skipping.`;
             feedbackDiv.className = 'incorrect';
             feedbackDiv.style.display = 'block';
             submitBtn.disabled = true;
             guessInput.disabled = true;
-            nextBtn.style.display = 'inline-block';
+            nextBtn.style.display = 'inline-block'; // Allow skipping
             if (playedIndices.size >= totalSongs) { nextBtn.textContent = "Show Final Score";}
+             else { nextBtn.textContent = "Next Song"; }
         };
 
-        // --- Game Functions (Validated Versions) ---
+        // --- Game Functions ---
 
         function getRandomSongIndex() {
             if (totalSongs === 0 || playedIndices.size >= totalSongs) { return -1; }
@@ -139,7 +143,6 @@
             playedIndices.add(nextIndex);
             currentSongIndex = nextIndex;
             const song = songs[currentSongIndex];
-            // console.log(`Loading song ${playedIndices.size}: ${song.title}`); // Optional log
 
             playBtn.disabled = true;
             feedbackDiv.textContent = ''; feedbackDiv.className = '';
@@ -153,7 +156,7 @@
             audioPlayer.addEventListener('error', onAudioLoadError, { once: true });
              audioPlayer.onerror = (e) => {
                  if (!audioLoadError) { onAudioLoadError(e); }
-                 console.error("Audio Element Error Event Details:", audioPlayer.error); // Keep detailed error
+                 console.error("Audio Element Error Event Details:", audioPlayer.error);
              };
 
             audioPlayer.src = song.url;
@@ -168,32 +171,29 @@
         }
 
         function playSnippet() {
-             if (!audioPlayer.src || currentSongIndex === -1 || audioLoadError) { return; } // Fail silently if called inappropriately
-             if (audioPlayer.readyState < 3) { console.warn("Play attempted too early."); return; }
-
-             // console.log(`Attempting to play: ${songs[currentSongIndex].title}`); // Optional log
+             if (!audioPlayer.src || currentSongIndex === -1 || audioLoadError || audioPlayer.readyState < 3) { return; }
              audioPlayer.currentTime = 0;
 
             try {
                 const playPromise = audioPlayer.play();
                 if (playPromise !== undefined) {
                     playPromise.then(_ => {
-                        playBtn.disabled = true; // Disable while playing
+                        playBtn.disabled = true;
                         if (currentAudioTimeout) clearTimeout(currentAudioTimeout);
                         currentAudioTimeout = setTimeout(() => {
                             if (!audioPlayer.paused) { audioPlayer.pause(); }
-                            playBtn.disabled = false; // Re-enable after snippet
+                            playBtn.disabled = false;
                             currentAudioTimeout = null;
                         }, snippetDuration * 1000);
                     }).catch(error => {
-                        console.error("Error during async playback:", error); // Keep error log
-                        feedbackDiv.textContent = `Playback Error. Try again.`;
+                        console.error("Error during async playback:", error);
+                        feedbackDiv.textContent = `Playback Error.`; // Simplified error
                         feedbackDiv.className = 'incorrect'; feedbackDiv.style.display = 'block';
                         playBtn.disabled = false;
                     });
                  }
             } catch (error) {
-                 console.error("Error calling play():", error); // Keep error log
+                 console.error("Error calling play():", error);
                  feedbackDiv.textContent = "Error starting playback.";
                  feedbackDiv.className = 'incorrect'; feedbackDiv.style.display = 'block';
                  playBtn.disabled = false;
@@ -230,7 +230,6 @@
          }
 
         function startGame() {
-             console.log("Starting game..."); // Keep start log
              score = 0; playedIndices.clear(); audioLoadError = false;
              scoreDiv.textContent = `Score: 0 / 0`;
              feedbackDiv.style.display = 'none'; answerDiv.style.display = 'none';
@@ -240,7 +239,6 @@
         }
 
         function endGame(message) {
-             console.log(`Ending game: ${message}`); // Keep end log
              instructionsP.textContent = `${message} Final Score: ${score} / ${playedIndices.size}`;
              playBtn.disabled = true; submitBtn.disabled = true; guessInput.disabled = true;
              guessSectionDiv.style.display = 'none'; nextBtn.style.display = 'none';
@@ -259,10 +257,10 @@
             guessInput.addEventListener('keypress', function(event) {
                  if (event.key === 'Enter' && !submitBtn.disabled) { event.preventDefault(); checkGuess(); }
              });
-            console.log("Event listeners attached."); // Keep setup log
+            // console.log("Event listeners attached."); // Optional final log
         } else { console.error("Initialization Error: One or more essential elements not found!"); }
 
-        console.log("Blind Test Game script loaded."); // Keep load log
+        // console.log("Blind Test Game script loaded."); // Optional final log
 
     </script>
 </body>
